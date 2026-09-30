@@ -1,0 +1,15 @@
+widget: UserProfileCard
+props:
+  - name: string
+  - avatarUrl: string
+  - isPro: bool
+  - onFollow: action
+
+ui:
+  card:
+    row:
+      - avatar: $avatarUrl
+      - col:
+          - text: $name (titleMedium)
+          - chip: 'PRO' (when: $isPro)
+      - button: 'Suivre' (onTap: $onFollow)

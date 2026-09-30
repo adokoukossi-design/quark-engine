@@ -34,18 +34,18 @@
 - [x] Rédaction et publication du [`README.md`](README.md) synthétisant la vision, les métriques et la roadmap.
 - [x] Création et synchronisation du dépôt public GitHub.
 - [x] Mise en place du présent fichier de continuité contextuelle (`CONTINUITY.md`).
+- [x] Spécification formelle de la Quark Spec v1 ([`spec/QUARK_SPEC_V1.md`](spec/QUARK_SPEC_V1.md)).
+- [x] Création du premier fichier d'exemple officiel ([`examples/user_profile_card.qrk`](examples/user_profile_card.qrk)).
 
 ---
 
 ## 🎯 4. Prochaines Étapes Immédiates (Roadmap POC)
 
-La prochaine phase est le **Prototype (POC) — Étape 1** :
+La prochaine phase est le **Prototype (POC) — Étape 2 & 3** :
 
-1. **Définir la grammaire / le format de la Quark Spec (`.qrk`) :**
-   * Concevoir la structure minimale (YAML ou DSL ultra-léger) pour représenter un composant d'UI Flutter (ex: un widget de formulaire ou une carte produit) sans le bruit syntaxique (`BuildContext`, `Expanded`, etc.).
-2. **Créer le projet Dart / Package d'outils local :**
-   * Initialiser un package Dart local dans le repo (ex: `packages/quark_core`).
-   * Ajouter les dépendances clés : `analyzer`, `code_builder`, `yaml`.
+1. [x] **Définir la grammaire / le format de la Quark Spec (`.qrk`)** (Terminé).
+2. [ ] **Créer le projet Dart / Package d'outils local (`packages/quark_core`) :**
+   * Initialiser le `pubspec.yaml` avec `yaml`, `code_builder`, `dart_style`, `analyzer`.
 3. **Tester la transpilation `.qrk` ➡️ `.dart` :**
    * Générer un widget Flutter propre et prêt à l'emploi à partir d'un fichier de spec de moins de 30 lignes (~150 tokens).
 4. **Tester l'extraction `.dart` ➡️ `.qrk` (Compression AST) :**
