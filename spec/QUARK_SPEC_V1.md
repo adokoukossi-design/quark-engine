@@ -77,8 +77,8 @@ Les parenthèses suffixées à un élément permettent d'ajouter des attributs s
 
 ```yaml
 - text: $name (titleMedium)
-- chip: 'PRO' (when: $isPro)
-- button: 'Valider' (onTap: $onSubmit)
+- chip: PRO (when=$isPro)
+- button: Suivre (onTap=$onFollow)
 ```
 
 ### Modificateurs Reconnus :
@@ -87,10 +87,10 @@ Les parenthèses suffixées à un élément permettent d'ajouter des attributs s
    * Format court : `(titleMedium)`, `(bodySmall)`, `(headlineLarge)`.
    * Dart : `style: Theme.of(context).textTheme.titleMedium`
 2. **Conditionnel (`when`) :**
-   * Format : `(when: $condition)`
+   * Format : `(when=$condition)` ou `(when: $condition)` (si entre guillemets)
    * Dart : Utilise le `collection-if` natif (`if (condition) Widget`)
 3. **Événements (`onTap`, `onPressed`) :**
-   * Format : `(onTap: $callback)`
+   * Format : `(onTap=$callback)` ou `(onTap: $callback)`
    * Dart : `onPressed: callback`
 
 ---
@@ -120,6 +120,6 @@ ui:
       - avatar: $avatarUrl
       - col:
           - text: $name (titleMedium)
-          - chip: 'PRO' (when: $isPro)
-      - button: 'Suivre' (onTap: $onFollow)
+          - chip: PRO (when=$isPro)
+      - button: Suivre (onTap=$onFollow)
 ```

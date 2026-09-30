@@ -36,20 +36,23 @@
 - [x] Mise en place du présent fichier de continuité contextuelle (`CONTINUITY.md`).
 - [x] Spécification formelle de la Quark Spec v1 ([`spec/QUARK_SPEC_V1.md`](spec/QUARK_SPEC_V1.md)).
 - [x] Création du premier fichier d'exemple officiel ([`examples/user_profile_card.qrk`](examples/user_profile_card.qrk)).
+- [x] Création du package Dart [`packages/quark_core`](packages/quark_core) avec `yaml` et `dart_style`.
+- [x] Implémentation du transpilateur déterministe Quark Spec ➡️ Code Flutter Dart (`lib/src/transpiler.dart`).
+- [x] Création et validation du CLI exécutable `bin/quark.dart` avec rapport métrique de tokens (-64 % sur le composant test).
+- [x] Génération réussie du code Flutter officiel ([`examples/user_profile_card.dart`](examples/user_profile_card.dart)).
 
 ---
 
 ## 🎯 4. Prochaines Étapes Immédiates (Roadmap POC)
 
-La prochaine phase est le **Prototype (POC) — Étape 2 & 3** :
+La prochaine phase est le **Prototype (POC) — Étape 4 & 5** :
 
-1. [x] **Définir la grammaire / le format de la Quark Spec (`.qrk`)** (Terminé).
-2. [ ] **Créer le projet Dart / Package d'outils local (`packages/quark_core`) :**
-   * Initialiser le `pubspec.yaml` avec `yaml`, `code_builder`, `dart_style`, `analyzer`.
-3. **Tester la transpilation `.qrk` ➡️ `.dart` :**
-   * Générer un widget Flutter propre et prêt à l'emploi à partir d'un fichier de spec de moins de 30 lignes (~150 tokens).
-4. **Tester l'extraction `.dart` ➡️ `.qrk` (Compression AST) :**
-   * Lire un fichier Dart existant avec l'API `analyzer` et en extraire la spec condensée.
+1. [x] **Définir la grammaire de la Quark Spec (`.qrk`)** (Terminé).
+2. [x] **Créer le package Dart `quark_core` et le transpilateur `.qrk` ➡️ `.dart`** (Terminé).
+3. [ ] **Développer le Compresseur Inverse (Dart ➡️ Quark Spec via AST `analyzer`) :**
+   * Lire un fichier Dart existant avec l'API `analyzer` pour extraire les widgets clés et régénérer le fichier `.qrk` équivalent.
+4. [ ] **Tester le prompt LLM en passe unique (Quark Pulse) :**
+   * Écrire le template de prompt système pour Claude / Gemini permettant de modifier la Quark Spec en 1 tour.
 
 ---
 
