@@ -1,4 +1,5 @@
 /// Data structures for Quark Spec representation.
+library;
 
 class QuarkProp {
   final String name;

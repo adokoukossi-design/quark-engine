@@ -62,12 +62,12 @@ class QuarkTranspiler {
           _transpileNode(node.children.first, buffer, indentLevel + 2);
         } else if (node.children.isNotEmpty) {
           buffer.writeln('Column(');
-          buffer.writeln('${childIndent}  children: [');
+          buffer.writeln('$childIndent  children: [');
           for (final child in node.children) {
             _transpileChildWithCondition(child, buffer, indentLevel + 4);
           }
-          buffer.writeln('${childIndent}  ],');
-          buffer.write('${childIndent})');
+          buffer.writeln('$childIndent  ],');
+          buffer.write('$childIndent)');
         } else {
           buffer.write('const SizedBox()');
         }

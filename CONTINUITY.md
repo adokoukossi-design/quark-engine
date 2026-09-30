@@ -40,6 +40,10 @@
 - [x] Implémentation du transpilateur déterministe Quark Spec ➡️ Code Flutter Dart (`lib/src/transpiler.dart`).
 - [x] Création et validation du CLI exécutable `bin/quark.dart` avec rapport métrique de tokens (-64 % sur le composant test).
 - [x] Génération réussie du code Flutter officiel ([`examples/user_profile_card.dart`](examples/user_profile_card.dart)).
+- [x] Implémentation du Compresseur Inverse AST Dart ➡️ Quark Spec ([`packages/quark_core/lib/src/extractor.dart`](packages/quark_core/lib/src/extractor.dart)).
+- [x] Support complet des instanciations de widgets résolues/non-résolues (`InstanceCreationExpression` et `MethodInvocation`).
+- [x] Validation du Round-Trip bidirectionnel strict 1:1 (`.qrk` ➡️ `.dart` ➡️ `.qrk`) sur cas v1 et cas étendu v2 ([`examples/user_profile_card_v2.dart`](examples/user_profile_card_v2.dart)).
+- [x] Suite complète de tests unitaires automatisés validée (`dart test` : 5/5 passants, 0 avertissement d'analyse).
 
 ---
 
@@ -49,10 +53,12 @@ La prochaine phase est le **Prototype (POC) — Étape 4 & 5** :
 
 1. [x] **Définir la grammaire de la Quark Spec (`.qrk`)** (Terminé).
 2. [x] **Créer le package Dart `quark_core` et le transpilateur `.qrk` ➡️ `.dart`** (Terminé).
-3. [ ] **Développer le Compresseur Inverse (Dart ➡️ Quark Spec via AST `analyzer`) :**
-   * Lire un fichier Dart existant avec l'API `analyzer` pour extraire les widgets clés et régénérer le fichier `.qrk` équivalent.
-4. [ ] **Tester le prompt LLM en passe unique (Quark Pulse) :**
-   * Écrire le template de prompt système pour Claude / Gemini permettant de modifier la Quark Spec en 1 tour.
+3. [x] **Développer le Compresseur Inverse (Dart ➡️ Quark Spec via AST `analyzer`)** (Terminé).
+4. [ ] **Développer & tester le module Quark Pulse (Prompt LLM en passe unique) :**
+   * Écrire le template de prompt système compact pour Claude / Gemini orienté édition Quark Spec.
+   * Valider l'application d'une modification applicative (ex: ajout de props/boutons) en 1 tour avec ~200 tokens de budget.
+5. [ ] **Développer Quark Router (Aiguillage sémantique local) :**
+   * Classificateur d'intention simple distinguant refactor local direct vs appel distant Pulse.
 
 ---
 
