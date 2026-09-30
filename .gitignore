@@ -1,0 +1,20 @@
+# Git
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# Dart & Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Node / JS
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
