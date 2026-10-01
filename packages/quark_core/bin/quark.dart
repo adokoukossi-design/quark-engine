@@ -11,7 +11,13 @@ void main(List<String> args) async {
     print('  quark route "<instruction>"                    # Semantic decision (Local Engine vs Pulse)');
     print('  quark pulse <file.qrk> "<prompt>" [--dry-run]  # Single-pass LLM prompt & spec update');
     print('  quark run <file.qrk> "<instruction>"           # End-to-end Zero-Token execution');
+    print('  quark watch [dir]                              # Watch & auto-transpile .qrk on save');
     exit(1);
+  }
+
+  if (args[0] == 'watch') {
+    await _handleWatch(args);
+    return;
   }
 
   if (args[0] == 'route') {
@@ -311,5 +317,54 @@ Future<void> _handleRun(List<String> args) async {
     print('🎯 Aiguillage : QUARK PULSE (Appel distant Single-Pass) 🌐');
     print('💡 ${decision.reason}');
     await _handlePulse(['pulse', specPath, instruction, if (isDryRun) '--dry-run']);
+  }
+}
+
+Future<void> _handleWatch(List<String> args) async {
+  final targetPath = args.length > 1 ? args[1] : '.';
+  final targetDir = Directory(targetPath);
+
+  if (!targetDir.existsSync()) {
+    print('❌ Dossier introuvable : $targetPath');
+    exit(1);
+  }
+
+  print('⚡ [Quark Watcher] Surveillance active sur : ${p.canonicalize(targetDir.path)}');
+  print('👀 Toute sauvegarde d\'un fichier .qrk sera instantanément transpilée en .dart...');
+
+  final parser = QuarkParser();
+  final transpiler = QuarkTranspiler();
+
+  void transpileFile(File file) {
+    if (!file.path.endsWith('.qrk')) return;
+    try {
+      final content = file.readAsStringSync();
+      final spec = parser.parse(content);
+      final dartCode = transpiler.transpile(spec);
+      final outputPath = p.setExtension(file.path, '.dart');
+      File(outputPath).writeAsStringSync(dartCode);
+      final now = DateTime.now();
+      final timeStr =
+          '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+      print('[$timeStr] 🔄 Transpilé : ${p.basename(file.path)} ➡️ ${p.basename(outputPath)}');
+    } catch (e) {
+      print('⚠️ Erreur sur ${p.basename(file.path)} : $e');
+    }
+  }
+
+  // Initial scan & transpile
+  for (final entity in targetDir.listSync(recursive: true)) {
+    if (entity is File && entity.path.endsWith('.qrk')) {
+      transpileFile(entity);
+    }
+  }
+
+  await for (final event in targetDir.watch(recursive: true)) {
+    if (event.path.endsWith('.qrk')) {
+      final file = File(event.path);
+      if (file.existsSync()) {
+        transpileFile(file);
+      }
+    }
   }
 }

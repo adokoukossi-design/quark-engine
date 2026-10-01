@@ -1,7 +1,9 @@
 name: quark_core
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+
+executables:
+  quark: quark
 
 environment:
   sdk: ^3.10.4
