@@ -233,4 +233,97 @@ Hope this helps!
       expect(result.tokenSavingsPercent, greaterThan(60.0));
     });
   });
+
+  group('Quark Router & Local Engine - Semantic Dispatcher & Local Refactoring', () {
+    final router = QuarkRouter();
+    final localEngine = QuarkLocalEngine();
+    final parser = QuarkParser();
+
+    const sampleYaml = '''
+widget: UserProfileCard
+props:
+  - name: string
+  - avatarUrl: string
+  - isPro: bool
+  - onFollow: action
+
+ui:
+  card:
+    row:
+      - avatar: \$avatarUrl
+      - col:
+          - text: \$name (titleMedium)
+          - chip: PRO (when=\$isPro)
+      - button: Suivre (onTap=\$onFollow)
+''';
+
+    test('QuarkRouter routes trivial refactors locally and complex tasks to Pulse', () {
+      final d1 = router.route('renomme la prop isPro en isPremium');
+      expect(d1.isLocal, isTrue);
+      expect(d1.localOpType, equals(LocalOperationType.renameProp));
+      expect(d1.parameters['oldName'], equals('isPro'));
+      expect(d1.parameters['newName'], equals('isPremium'));
+
+      final d2 = router.route('renomme le widget en MemberProfileCard');
+      expect(d2.isLocal, isTrue);
+      expect(d2.localOpType, equals(LocalOperationType.renameWidget));
+      expect(d2.parameters['newWidgetName'], equals('MemberProfileCard'));
+
+      final d3 = router.route('change le style en headlineMedium');
+      expect(d3.isLocal, isTrue);
+      expect(d3.localOpType, equals(LocalOperationType.changeStyle));
+      expect(d3.parameters['newStyle'], equals('headlineMedium'));
+
+      final d4 = router.route('supprime la prop avatarUrl');
+      expect(d4.isLocal, isTrue);
+      expect(d4.localOpType, equals(LocalOperationType.removeProp));
+      expect(d4.parameters['propName'], equals('avatarUrl'));
+
+      final d5 = router.route('ajoute une grille d\'images avec un carousel animé et un switch');
+      expect(d5.isPulse, isTrue);
+      expect(d5.isLocal, isFalse);
+    });
+
+    test('QuarkLocalEngine renames property across props and UI variables with 0 tokens', () {
+      final spec = parser.parse(sampleYaml);
+      final decision = router.route('renomme la prop isPro en isPremium');
+      final updated = localEngine.apply(spec, decision);
+
+      expect(updated.props.any((p) => p.name == 'isPremium'), isTrue);
+      expect(updated.props.any((p) => p.name == 'isPro'), isFalse);
+
+      final transpiler = QuarkTranspiler();
+      final dartCode = transpiler.transpile(updated);
+      expect(dartCode, contains('final bool isPremium;'));
+      expect(dartCode, contains('if (isPremium) Chip(label: Text(\'PRO\'))'));
+    });
+
+    test('QuarkEngineCoordinator processes local tasks with 0 tokens and pulse tasks with low tokens', () async {
+      final pulseProvider = SimulationPulseProvider(
+        fixedResponse: sampleYaml,
+      );
+      final coordinator = QuarkEngineCoordinator(
+        pulse: QuarkPulse(provider: pulseProvider),
+      );
+
+      // Local route: 0 tokens
+      final localResult = await coordinator.process(
+        instruction: 'renomme le widget en VipCard',
+        currentSpecYaml: sampleYaml,
+      );
+      expect(localResult.routeDecision.isLocal, isTrue);
+      expect(localResult.inputTokensUsed, equals(0));
+      expect(localResult.resultSpec.widgetName, equals('VipCard'));
+      expect(localResult.generatedDart, contains('class VipCard extends StatelessWidget {'));
+
+      // Pulse route: low tokens
+      final pulseResult = await coordinator.process(
+        instruction: 'ajoute un bouton de partage avec compteur de likes',
+        currentSpecYaml: sampleYaml,
+      );
+      expect(pulseResult.routeDecision.isPulse, isTrue);
+      expect(pulseResult.inputTokensUsed, greaterThan(0));
+      expect(pulseResult.inputTokensUsed, lessThan(400));
+    });
+  });
 }

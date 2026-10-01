@@ -49,20 +49,33 @@
 - [x] Intégration CLI `quark pulse <file.qrk> "<instruction>" [--dry-run]` avec calcul en temps réel de l'empreinte de tokens.
 - [x] Validation end-to-end d'édition en 1 tour (Single Pass) avec mise à jour automatique de la spec et transpilation Flutter Dart immédiate.
 - [x] Suite de tests automatisée étendue à 9/9 tests passants (0 avertissement d'analyse).
+- [x] Conception et implémentation du module **Quark Router** ([`packages/quark_core/lib/src/router.dart`](packages/quark_core/lib/src/router.dart)).
+- [x] Aiguillage sémantique local distinguant refactoring déterministe (0 token LLM consommé) vs modifications complexes (Quark Pulse).
+- [x] Implémentation du moteur de mutation locale déterministe `QuarkLocalEngine` (renommage de props/widgets, style, suppression).
+- [x] Implémentation de `QuarkEngineCoordinator` unifiant la boucle complète : `Intention` ➡️ `Router` ➡️ (`LocalEngine` | `Pulse`) ➡️ `Transpiler Dart`.
+- [x] Commandes CLI intégrées : `quark route "<instruction>"` et `quark run <file.qrk> "<instruction>"`.
+- [x] Suite complète de tests unitaires étendue à 12/12 passants (0 avertissement d'analyse).
 
 ---
 
-## 🎯 4. Prochaines Étapes Immédiates (Roadmap POC)
+## 🎯 4. Prochaines Étapes Immédiates (Roadmap Projet)
 
-La prochaine phase est le **Prototype (POC) — Étape 5** :
+Le **Prototype (POC — Phase 1)** est **100 % achevé et validé sur ses 4 briques fondamentales**.
 
-1. [x] **Définir la grammaire de la Quark Spec (`.qrk`)** (Terminé).
-2. [x] **Créer le package Dart `quark_core` et le transpilateur `.qrk` ➡️ `.dart`** (Terminé).
-3. [x] **Développer le Compresseur Inverse (Dart ➡️ Quark Spec via AST `analyzer`)** (Terminé).
-4. [x] **Développer & tester le module Quark Pulse (Prompt LLM en passe unique)** (Terminé).
-5. [ ] **Développer Quark Router (Aiguillage sémantique local) :**
-   * Classificateur d'intention local (règles sémantiques ou SLM ultra-léger) distinguant les refactors locaux directs (ex: renommage, mise en forme, validation) des requêtes nécessitant une nouvelle logique métier / UI via Quark Pulse.
-   * Orchestration de la chaîne : `Intention Utilisateur` ➡️ `Quark Router` ➡️ `Quark Pulse` ou `Moteur Local Direct` ➡️ `Quark Core` ➡️ `Dart`.
+La prochaine phase est la **Phase 2 — Benchmarks & Cas Réels** :
+
+1. [x] **Phase 1 — Prototype POC (4 briques fonctionnelles) :**
+   * [x] Quark Spec (`.qrk`)
+   * [x] Quark Core (`transpiler` + `extractor` AST)
+   * [x] Quark Pulse (`single-pass LLM`)
+   * [x] Quark Router (`semantic dispatcher` + `local engine`)
+2. [ ] **Phase 2 — Banc d'Essai & Benchmarks Comparatifs :**
+   * Créer une suite de composants Flutter réalistes (Formulaire d'authentification, Dashboard eCommerce, Liste de flux avec états).
+   * Mesurer et publier le différentiel d'appel exact : *Agent traditionnel (Flutter brut) vs Quark Engine (Quark Spec + Pulse)*.
+   * Valider la métrique cible : **réduction de 70 % à 90 % de tokens d'entrée**.
+3. [ ] **Phase 3 — Open Source & Distribution CLI :**
+   * Packaging autonome du CLI `quark` pour publication `pub.dev`.
+   * Documentation interactive avec exemples avant/après.
 
 ---
 

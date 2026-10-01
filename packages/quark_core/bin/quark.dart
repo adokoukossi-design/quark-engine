@@ -8,12 +8,24 @@ void main(List<String> args) async {
     print('Usage:');
     print('  quark <file.qrk> [--output <file.dart>]         # Transpile Spec to Dart');
     print('  quark <file.dart> [--output <file.qrk>]        # Compress Dart to Spec via AST');
+    print('  quark route "<instruction>"                    # Semantic decision (Local Engine vs Pulse)');
     print('  quark pulse <file.qrk> "<prompt>" [--dry-run]  # Single-pass LLM prompt & spec update');
+    print('  quark run <file.qrk> "<instruction>"           # End-to-end Zero-Token execution');
     exit(1);
+  }
+
+  if (args[0] == 'route') {
+    _handleRoute(args);
+    return;
   }
 
   if (args[0] == 'pulse') {
     await _handlePulse(args);
+    return;
+  }
+
+  if (args[0] == 'run') {
+    await _handleRun(args);
     return;
   }
 
@@ -223,5 +235,81 @@ Future<void> _handlePulse(List<String> args) async {
   } catch (e) {
     print('⚠️ Impossible de contacter le serveur LLM distant ($e).');
     print('💡 Utilisez --dry-run pour inspecter le payload généré.');
+  }
+}
+
+void _handleRoute(List<String> args) {
+  if (args.length < 2) {
+    print('Usage: quark route "<instruction>"');
+    exit(1);
+  }
+  final instruction = args[1];
+  final router = QuarkRouter();
+  final decision = router.route(instruction);
+
+  print('⚡ [Quark Router] Aiguillage sémantique local');
+  print('📝 Intention : "$instruction"');
+  if (decision.isLocal) {
+    print('🎯 Décision  : MOTEUR LOCAL DIRECT (0 token LLM consommé) 🚀');
+    print('💡 Motif     : ${decision.reason}');
+    if (decision.parameters.isNotEmpty) {
+      print('📦 Paramètres : ${decision.parameters}');
+    }
+  } else {
+    print('🎯 Décision  : QUARK PULSE (Appel LLM distant Single-Pass) 🌐');
+    print('💡 Motif     : ${decision.reason}');
+  }
+}
+
+Future<void> _handleRun(List<String> args) async {
+  if (args.length < 3) {
+    print('Usage: quark run <file.qrk> "<instruction>" [--dry-run]');
+    exit(1);
+  }
+  final specPath = args[1];
+  final instruction = args[2];
+  final isDryRun = args.contains('--dry-run');
+
+  final specFile = File(specPath);
+  if (!specFile.existsSync()) {
+    print('❌ Erreur : Fichier introuvable : $specPath');
+    exit(1);
+  }
+
+  final specContent = specFile.readAsStringSync();
+  final router = QuarkRouter();
+  final decision = router.route(instruction);
+
+  print('⚡ [Quark Pipeline] Traitement de l\'intention');
+  print('📝 Instruction : "$instruction"');
+  print('📄 Spec source : $specPath');
+
+  if (decision.isLocal) {
+    print('🎯 Aiguillage : MOTEUR LOCAL DIRECT (0 token LLM) ⚡');
+    print('💡 ${decision.reason}');
+
+    final parser = QuarkParser();
+    final localEngine = QuarkLocalEngine();
+    final transpiler = QuarkTranspiler();
+    final extractor = QuarkExtractor();
+
+    final spec = parser.parse(specContent);
+    final updatedSpec = localEngine.apply(spec, decision);
+    final updatedYaml = extractor.toYaml(updatedSpec);
+    final dartCode = transpiler.transpile(updatedSpec);
+
+    specFile.writeAsStringSync(updatedYaml);
+    final dartOutput = p.setExtension(specPath, '.dart');
+    File(dartOutput).writeAsStringSync(dartCode);
+
+    print('✅ Spec mise à jour localement : $specPath');
+    print('🎯 Code Dart synchronisé : $dartOutput');
+    print('\n📊 [Bilan Consommation]');
+    print('  - Tokens LLM consommés : 0 token 🎉');
+    print('  - Latence réseau       : 0 ms (exécution locale instantanée)');
+  } else {
+    print('🎯 Aiguillage : QUARK PULSE (Appel distant Single-Pass) 🌐');
+    print('💡 ${decision.reason}');
+    await _handlePulse(['pulse', specPath, instruction, if (isDryRun) '--dry-run']);
   }
 }
