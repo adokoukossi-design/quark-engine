@@ -44,21 +44,25 @@
 - [x] Support complet des instanciations de widgets résolues/non-résolues (`InstanceCreationExpression` et `MethodInvocation`).
 - [x] Validation du Round-Trip bidirectionnel strict 1:1 (`.qrk` ➡️ `.dart` ➡️ `.qrk`) sur cas v1 et cas étendu v2 ([`examples/user_profile_card_v2.dart`](examples/user_profile_card_v2.dart)).
 - [x] Suite complète de tests unitaires automatisés validée (`dart test` : 5/5 passants, 0 avertissement d'analyse).
+- [x] Conception et implémentation du module **Quark Pulse** ([`packages/quark_core/lib/src/pulse.dart`](packages/quark_core/lib/src/pulse.dart)).
+- [x] Définition du prompt système ultra-dense Zero-Token (< 250 tokens) forçant une réponse YAML pure et déterministe.
+- [x] Intégration CLI `quark pulse <file.qrk> "<instruction>" [--dry-run]` avec calcul en temps réel de l'empreinte de tokens.
+- [x] Validation end-to-end d'édition en 1 tour (Single Pass) avec mise à jour automatique de la spec et transpilation Flutter Dart immédiate.
+- [x] Suite de tests automatisée étendue à 9/9 tests passants (0 avertissement d'analyse).
 
 ---
 
 ## 🎯 4. Prochaines Étapes Immédiates (Roadmap POC)
 
-La prochaine phase est le **Prototype (POC) — Étape 4 & 5** :
+La prochaine phase est le **Prototype (POC) — Étape 5** :
 
 1. [x] **Définir la grammaire de la Quark Spec (`.qrk`)** (Terminé).
 2. [x] **Créer le package Dart `quark_core` et le transpilateur `.qrk` ➡️ `.dart`** (Terminé).
 3. [x] **Développer le Compresseur Inverse (Dart ➡️ Quark Spec via AST `analyzer`)** (Terminé).
-4. [ ] **Développer & tester le module Quark Pulse (Prompt LLM en passe unique) :**
-   * Écrire le template de prompt système compact pour Claude / Gemini orienté édition Quark Spec.
-   * Valider l'application d'une modification applicative (ex: ajout de props/boutons) en 1 tour avec ~200 tokens de budget.
+4. [x] **Développer & tester le module Quark Pulse (Prompt LLM en passe unique)** (Terminé).
 5. [ ] **Développer Quark Router (Aiguillage sémantique local) :**
-   * Classificateur d'intention simple distinguant refactor local direct vs appel distant Pulse.
+   * Classificateur d'intention local (règles sémantiques ou SLM ultra-léger) distinguant les refactors locaux directs (ex: renommage, mise en forme, validation) des requêtes nécessitant une nouvelle logique métier / UI via Quark Pulse.
+   * Orchestration de la chaîne : `Intention Utilisateur` ➡️ `Quark Router` ➡️ `Quark Pulse` ou `Moteur Local Direct` ➡️ `Quark Core` ➡️ `Dart`.
 
 ---
 

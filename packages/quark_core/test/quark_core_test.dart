@@ -162,4 +162,75 @@ class UserProfileCard extends StatelessWidget {
       expect(dart2, equals(dart1));
     });
   });
+
+  group('Quark Pulse - Single-Pass LLM Invocator', () {
+    test('QuarkPulsePrompt is ultra-compact and dense', () {
+      final tokenCount =
+          QuarkPulsePrompt.estimateTokens(QuarkPulsePrompt.systemPrompt);
+      expect(tokenCount, lessThan(300));
+      expect(QuarkPulsePrompt.systemPrompt, contains('QUARK SPEC GRAMMAR'));
+      expect(QuarkPulsePrompt.systemPrompt, contains('MODIFIERS'));
+    });
+
+    test('QuarkPulsePrompt.buildUserMessage formats payload accurately', () {
+      final message = QuarkPulsePrompt.buildUserMessage(
+        currentSpec: 'widget: TestWidget\nprops:\n  - id: int',
+        instruction: 'Add a title property',
+      );
+
+      expect(message, contains('CURRENT SPEC:'));
+      expect(message, contains('widget: TestWidget'));
+      expect(message, contains('INSTRUCTION:'));
+      expect(message, contains('Add a title property'));
+    });
+
+    test('QuarkPulse.extractSpec extracts YAML correctly from markdown fences', () {
+      const rawMarkdown = '''
+Sure! Here is the updated spec:
+```yaml
+widget: Sample
+props:
+  - count: int
+ui:
+  box:
+    text: \$count
+```
+Hope this helps!
+''';
+
+      final extracted = QuarkPulse.extractSpec(rawMarkdown);
+      expect(extracted, startsWith('widget: Sample'));
+      expect(extracted, endsWith('text: \$count'));
+      expect(extracted, isNot(contains('Sure!')));
+      expect(extracted, isNot(contains('```')));
+    });
+
+    test('QuarkPulse execution with simulation provider works end-to-end', () async {
+      final v1File = File('../../examples/user_profile_card.qrk');
+      final v2File = File('../../examples/user_profile_card_v2.qrk');
+      expect(v1File.existsSync(), isTrue);
+      expect(v2File.existsSync(), isTrue);
+
+      final v1Content = v1File.readAsStringSync();
+      final v2Content = v2File.readAsStringSync();
+
+      final provider = SimulationPulseProvider(
+        fixedResponse: '```yaml\n$v2Content\n```',
+      );
+      final pulse = QuarkPulse(provider: provider);
+
+      final result = await pulse.execute(
+        currentSpec: v1Content,
+        instruction: 'Add bio and onContact button',
+      );
+
+      expect(result.parsedSpec.widgetName, equals('UserProfileCard'));
+      expect(result.parsedSpec.props.length, equals(6));
+      expect(result.generatedDartCode, contains('final String bio;'));
+      expect(result.generatedDartCode, contains('final VoidCallback onContact;'));
+      expect(result.generatedDartCode, contains('ElevatedButton(onPressed: onContact, child: Text(\'Contacter\'))'));
+      expect(result.inputTokens, lessThan(400));
+      expect(result.tokenSavingsPercent, greaterThan(60.0));
+    });
+  });
 }
